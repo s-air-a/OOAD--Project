@@ -168,7 +168,6 @@ public class ClientGui extends Thread{
                 if (name.equals(username) && pswd.equals(password))
                 {
                   flag=1;
-                  System.out.println("It is true");
                 }
               }
               resultSet.close();

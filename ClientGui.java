@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.sql.*;
+import java.util.Scanner;
+import java.sql.*;
 
 
 public class ClientGui extends Thread{
@@ -168,7 +170,6 @@ public class ClientGui extends Thread{
                 if (name.equals(username) && pswd.equals(password))
                 {
                   flag=1;
-                  System.out.println("It is true");
                 }
               }
               resultSet.close();
@@ -304,7 +305,92 @@ public class ClientGui extends Thread{
   }
 
   public static void main(String[] args) throws Exception {
-    ClientGui client = new ClientGui();
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("WELCOME :)");
+    System.out.println("1. Start chat");
+    System.out.println("2. User settings");
+    int ip = scanner.nextInt();
+    if (ip==1)
+    {
+      ClientGui client = new ClientGui();
+    }
+    else
+    {
+      System.out.println("\n");
+      System.out.println("1. Create account");
+      System.out.println("2. Update account");
+      System.out.println("3. Delete account");
+
+      try{
+        try {
+          Class.forName("com.mysql.cj.jdbc.Driver");
+      } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+      }
+
+      Connection connection = DriverManager.getConnection(
+          "jdbc:mysql://localhost:3306/javachat", "root", "1234");
+
+      int ip2 = scanner.nextInt();
+      Scanner sc = new Scanner(System.in);
+      if (ip2==1)
+      {
+        System.out.println("\n");
+        System.out.println("Account creation...");
+        System.out.println("Enter username: ");
+        String uname = sc.nextLine();
+        System.out.println("Enter password: ");
+        String pswd = sc.nextLine();
+        String sql = "INSERT INTO login (Username, Password) VALUES (?, ?)";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, uname);
+        statement.setString(2, pswd);
+        statement.executeUpdate();
+        System.out.println("\n");
+        System.out.println("Account created");
+        System.out.println("\n");
+        statement.close();
+      }
+      else if (ip2==2)
+      {
+        System.out.println("\n");
+        System.out.println("Account updation...");
+        System.out.println("Enter old username: ");
+        String old_u = sc.nextLine();
+        System.out.println("Enter new username: ");
+        String new_u = sc.nextLine();
+        System.out.println("Enter new password: ");
+        String new_p = sc.nextLine();
+        String sql = "UPDATE login SET username='" + new_u+ "', password='" + new_p + "' WHERE username='" + old_u + "'";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.executeUpdate();
+        System.out.println("\n");
+        System.out.println("Account updated");
+        System.out.println("\n");
+        statement.close();
+      }
+      else
+      {
+        System.out.println("\n");
+        System.out.println("Account deletion...");
+        System.out.println("Enter username: ");
+        String uname = sc.nextLine();
+        System.out.println("Enter password: ");
+        String pswd = sc.nextLine();
+        String sql = "DELETE FROM login WHERE username='" + uname + "' AND password='" + pswd + "'";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.executeUpdate();
+        System.out.println("\n");
+        System.out.println("Account deleted");
+        System.out.println("\n");
+        statement.close();
+      }
+
+      connection.close();}
+      catch (SQLException e) {
+      System.out.println("Data insertion failed. Error message: " + e.getMessage());
+      }
+    }
   }
 
   class Read extends Thread {

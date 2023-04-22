@@ -10,6 +10,8 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.sql.*;
 
 public class Server {
 
@@ -69,9 +71,41 @@ public class Server {
 
   // send incoming msg to all Users
   public void broadcastMessages(String msg, User userSender) {
+    ArrayList<String> recievedBy = new ArrayList<String>();
+
     for (User client : this.clients) {
+      recievedBy.add(client.getNickname());
       client.getOutStream().println(
           userSender.toString() + "<span>: " + msg+"</span>");
+    }
+    System.out.println(msg);
+    String sender= userSender.getNickname();
+    System.out.println("Sent by: "+ sender);
+    if (recievedBy.contains(sender)) {
+      recievedBy.remove(sender);
+    }
+    System.out.println("Recieved by: "+ recievedBy);
+
+    try{
+      try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    }
+    Connection connection = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/javachat", "root", "1234");
+    String tableName= "chats";
+    String sql = "INSERT INTO " + tableName + " (Sender, Reciever, Chat) VALUES (?, ?, ?)";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, sender);
+    statement.setString(2, String.join(",", recievedBy));
+    statement.setString(3, msg);
+
+    statement.executeUpdate();
+    statement.close();
+    connection.close();}
+    catch (SQLException e) {
+    System.out.println("Data insertion failed. Error message: " + e.getMessage());
     }
   }
 
